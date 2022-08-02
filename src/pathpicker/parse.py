@@ -295,7 +295,7 @@ def match_line(
         (file_path, _, _) = result
         if (
             os.path.isfile(prepend_dir(file_path, with_file_inspection=True))
-            or file_path[0:4] == ".../"
+            or file_path[:4] == ".../"
         ):
             return result
     return None
@@ -356,18 +356,18 @@ def prepend_dir(file: str, with_file_inspection: bool = False) -> str:
     if file[0] == "/":
         return file
 
-    if file[0:4] == ".../":
+    if file.startswith(".../"):
         # these are the gross git abbreviated paths, so
         # return early since we cant do anything here
         return file
 
-    if file[0:2] == "~/":
+    if file.startswith("~/"):
         # need to absolute it
         return os.path.expanduser(file)
 
     # if it starts with relative dirs (grep), then that's the easiest
     # because abspath will resolve this
-    if file[0:2] == "./" or file[0:3] == "../":
+    if file.startswith("./") or file.startswith("../"):
         return file
 
     # some peeps do forcedir and expand the path beforehand,
@@ -375,18 +375,18 @@ def prepend_dir(file: str, with_file_inspection: bool = False) -> str:
     first = file.split(os.sep)[0]
     if first == "home" and not os.environ.get("FPP_DISABLE_PREPENDING_HOME_WITH_SLASH"):
         # already absolute, easy
-        return "/" + file
+        return f"/{file}"
 
     if first in REPOS + (os.environ.get("FPP_REPOS") or "").split(","):
-        return os.path.expanduser("~/" + file)
+        return os.path.expanduser(f"~/{file}")
 
     if "/" not in file:
         # assume current dir like ./
-        return "./" + file
+        return f"./{file}"
 
     # git show and diff has a/stuff and b/stuff, so handle that. git
     # status never does this so we don't need to worry about relative dirs
-    if file[0:2] == "a/" or file[0:2] == "b/":
+    if file[:2] in ["a/", "b/"]:
         return PREPEND_PATH + file[2:]
 
     split_up = file.split("/")

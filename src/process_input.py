@@ -40,16 +40,17 @@ def get_line_objs_from_lines(
             all_input=all_input,
         )
 
-        if not result:
-            line_obj: LineBase = SimpleLine(formatted_line, index)
-        else:
-            line_obj = LineMatch(
+        line_obj = (
+            LineMatch(
                 formatted_line,
                 result,
                 index,
                 validate_file_exists=validate_file_exists,
                 all_input=all_input,
             )
+            if result
+            else SimpleLine(formatted_line, index)
+        )
 
         line_objs[index] = line_obj
 

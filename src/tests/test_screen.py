@@ -254,14 +254,10 @@ class TestScreenLogic(unittest.TestCase):
         actual_lines, actual_attributes = screen_data
         actual_merged_lines: List[str] = []
         for actual_line, attribute_line in zip(actual_lines, actual_attributes):
-            actual_merged_lines.append(actual_line)
-            actual_merged_lines.append(attribute_line)
-
+            actual_merged_lines.extend((actual_line, attribute_line))
         self.output_if_not_file(test_name, "\n".join(actual_merged_lines))
-        file = open(TestScreenLogic.get_expected_file(test_name))
-        expected_merged_lines = file.read().split("\n")
-        file.close()
-
+        with open(TestScreenLogic.get_expected_file(test_name)) as file:
+            expected_merged_lines = file.read().split("\n")
         self.assert_equal_lines(test_name, actual_merged_lines, expected_merged_lines)
 
     def compare_lines_to_expected(
@@ -269,10 +265,8 @@ class TestScreenLogic(unittest.TestCase):
     ) -> None:
         self.output_if_not_file(test_name, "\n".join(actual_lines))
 
-        file = open(TestScreenLogic.get_expected_file(test_name))
-        expected_lines = file.read().split("\n")
-        file.close()
-
+        with open(TestScreenLogic.get_expected_file(test_name)) as file:
+            expected_lines = file.read().split("\n")
         self.assert_equal_lines(test_name, actual_lines, expected_lines)
 
     def output_if_not_file(self, test_name: str, output: str) -> None:
@@ -281,9 +275,8 @@ class TestScreenLogic(unittest.TestCase):
             return
 
         print(f"Could not find file {expected_file} so outputting...")
-        file = open(expected_file, "w")
-        file.write(output)
-        file.close()
+        with open(expected_file, "w") as file:
+            file.write(output)
         self.fail(f"File outputted, please inspect {expected_file} for correctness")
 
     def assert_equal_num_lines(
@@ -326,7 +319,7 @@ class TestScreenLogic(unittest.TestCase):
 
     @staticmethod
     def get_expected_file(test_name: str) -> str:
-        return os.path.join(EXPECTED_DIR, test_name + ".txt")
+        return os.path.join(EXPECTED_DIR, f"{test_name}.txt")
 
     @staticmethod
     def maybe_make_expected_dir() -> None:

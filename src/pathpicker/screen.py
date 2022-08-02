@@ -72,6 +72,4 @@ class CursesScreen(ScreenBase):
         result = self.screen.getstr(y_pos, x_pos, max_len)
         if isinstance(result, str):
             return result
-        if isinstance(result, int):
-            return str(result)
-        return result.decode("utf-8")
+        return str(result) if isinstance(result, int) else result.decode("utf-8")

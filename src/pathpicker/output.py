@@ -70,18 +70,16 @@ def append_if_invalid(line_objs: List[LineMatch]) -> None:
 def output_selection(line_objs: List[LineMatch]) -> None:
     file_path = state_files.get_selection_file_path()
     indices = [line.index for line in line_objs]
-    file = open(file_path, "wb")
-    pickle.dump(indices, file)
-    file.close()
+    with open(file_path, "wb") as file:
+        pickle.dump(indices, file)
 
 
 def get_editor_and_path() -> Tuple[str, str]:
-    editor_path = (
+    if editor_path := (
         os.environ.get("FPP_EDITOR")
         or os.environ.get("VISUAL")
         or os.environ.get("EDITOR")
-    )
-    if editor_path:
+    ):
         editor = os.path.basename(editor_path)
         logger.add_event(f"using_editor_{editor}")
         return editor, editor_path
@@ -90,7 +88,7 @@ def get_editor_and_path() -> Tuple[str, str]:
 
 def join_files_into_command(files_and_line_numbers: List[Tuple[str, int]]) -> str:
     editor, editor_path = get_editor_and_path()
-    cmd = editor_path + " "
+    cmd = f"{editor_path} "
     if editor == "vim -p":
         first_file_path, first_line_num = files_and_line_numbers[0]
         cmd += f" +{first_line_num} {first_file_path}"
@@ -129,7 +127,7 @@ def compose_cd_command(_command: str, line_objs: List[LineMatch]) -> str:
 
 
 def is_cd_command(command: str) -> bool:
-    return command[0:3] in ["cd ", "cd"]
+    return command[:3] in ["cd ", "cd"]
 
 
 def compose_command(command: str, line_objs: List[LineMatch]) -> str:
@@ -186,9 +184,8 @@ def append_error(text: str) -> None:
 
 
 def append_to_file(command: str) -> None:
-    file = open(state_files.get_script_output_file_path(), "a")
-    file.write(command + "\n")
-    file.close()
+    with open(state_files.get_script_output_file_path(), "a") as file:
+        file.write(command + "\n")
     logger.output()
 
 
@@ -207,7 +204,6 @@ def append_exit() -> None:
 
 
 def write_to_file(command: str) -> None:
-    file = open(state_files.get_script_output_file_path(), "w")
-    file.write(command + "\n")
-    file.close()
+    with open(state_files.get_script_output_file_path(), "w") as file:
+        file.write(command + "\n")
     logger.output()

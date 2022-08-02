@@ -308,11 +308,21 @@ PREPEND_DIR_TEST_CASES: List[Dict[str, str]] = [
         "in": "www/asd.py",
         "out": os.path.expanduser("~/www/asd.py"),
     },
-    {"in": "foo/bar/baz/asd.py", "out": parse.PREPEND_PATH + "foo/bar/baz/asd.py"},
-    {"in": "a/foo/bar/baz/asd.py", "out": parse.PREPEND_PATH + "foo/bar/baz/asd.py"},
-    {"in": "b/foo/bar/baz/asd.py", "out": parse.PREPEND_PATH + "foo/bar/baz/asd.py"},
+    {
+        "in": "foo/bar/baz/asd.py",
+        "out": f"{parse.PREPEND_PATH}foo/bar/baz/asd.py",
+    },
+    {
+        "in": "a/foo/bar/baz/asd.py",
+        "out": f"{parse.PREPEND_PATH}foo/bar/baz/asd.py",
+    },
+    {
+        "in": "b/foo/bar/baz/asd.py",
+        "out": f"{parse.PREPEND_PATH}foo/bar/baz/asd.py",
+    },
     {"in": "", "out": ""},
 ]
+
 
 
 class AllInputTestCase(NamedTuple):
@@ -351,7 +361,7 @@ class TestParseFunction(unittest.TestCase):
 
             result = parse.prepend_dir(in_file)
             expected = test_case["out"]
-            if in_file[0:2] == "~/":
+            if in_file[:2] == "~/":
                 expected = os.path.expanduser(expected)
 
             self.assertEqual(expected, result)

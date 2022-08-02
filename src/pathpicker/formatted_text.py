@@ -85,7 +85,7 @@ class FormattedText:
                 break
             if index % 2 == 1:
                 # text
-                to_print = val[0 : max_len - printed_so_far]
+                to_print = val[:max_len - printed_so_far]
                 printer.addstr(
                     y_pos, x_pos + printed_so_far, to_print, ColorPrinter.CURRENT_COLORS
                 )

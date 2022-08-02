@@ -11,10 +11,8 @@ class CursesForTest(CursesApiBase):
     stores some state in test runs of the UI"""
 
     def __init__(self) -> None:
-        self.color_pairs = {}
         self.current_color = (0, 0)
-        # The (0, 0) is hardcoded.
-        self.color_pairs[0] = self.current_color
+        self.color_pairs = {0: self.current_color}
 
     def use_default_colors(self) -> None:
         pass

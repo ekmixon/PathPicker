@@ -20,9 +20,8 @@ def get_line_objs_from_file(
     input_file: str, validate_file_exists: bool, all_input: bool
 ) -> Dict[int, LineBase]:
     input_file = os.path.join(INPUT_DIR, input_file)
-    file = open(input_file)
-    lines = file.read().split("\n")
-    file.close()
+    with open(input_file) as file:
+        lines = file.read().split("\n")
     return process_input.get_line_objs_from_lines(
         lines, validate_file_exists=validate_file_exists, all_input=all_input
     )

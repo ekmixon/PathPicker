@@ -20,9 +20,8 @@ class LoggingEvent(NamedTuple):  # TypedDict from Python 3.8 needs to be used he
 
 
 def write_to_file(content: str) -> None:
-    file = open(state_files.get_logger_file_path(), "w")
-    file.write(content)
-    file.close()
+    with open(state_files.get_logger_file_path(), "w") as file:
+        file.write(content)
 
 
 def clear_file() -> None:
@@ -38,10 +37,7 @@ def add_event(event: str, number: Optional[int] = None) -> None:
 
 def get_logging_dicts() -> List[LoggingEvent]:
     unixname = getpass.getuser()
-    dicts = []
-    for event, number in events:
-        dicts.append(LoggingEvent(unixname, number, event))
-    return dicts
+    return [LoggingEvent(unixname, number, event) for event, number in events]
 
 
 def output() -> None:

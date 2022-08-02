@@ -100,7 +100,7 @@ class LineMatch(LineBase):
         stripped_subset = string_subset.strip()
         trailing_whitespace = len(string_subset) - len(stripped_subset)
         self.end -= trailing_whitespace
-        self.group = self.group[0 : len(self.group) - trailing_whitespace]
+        self.group = self.group[:len(self.group) - trailing_whitespace]
 
         self.selected = False
         self.hovered = False
@@ -250,8 +250,8 @@ class LineMatch(LineBase):
                 - len(str(self.before_text))
             )
             mid_point = int(space_allowed / 2)
-            begin_match = plain_text[0:mid_point]
-            end_match = plain_text[-mid_point : len(plain_text)]
+            begin_match = plain_text[:mid_point]
+            end_match = plain_text[-mid_point:]
             plain_text = begin_match + self.TRUNCATE_DECORATOR + end_match
 
         self.decorated_match = FormattedText(
@@ -259,9 +259,7 @@ class LineMatch(LineBase):
         )
 
     def get_decorator(self) -> str:
-        if self.selected:
-            return self.ARROW_DECORATOR
-        return ""
+        return self.ARROW_DECORATOR if self.selected else ""
 
     def print_up_to(
         self,

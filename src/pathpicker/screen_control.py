@@ -89,14 +89,10 @@ class HelperChrome:
             curses.curs_set(INVISIBLE_CURSOR)
 
     def reduce_max_y(self, max_y: int) -> int:
-        if self.get_is_sidebar_mode():
-            return max_y
-        return max_y - 4
+        return max_y if self.get_is_sidebar_mode() else max_y - 4
 
     def reduce_max_x(self, max_x: int) -> int:
-        if not self.get_is_sidebar_mode():
-            return max_x
-        return max_x - self.width
+        return max_x - self.width if self.get_is_sidebar_mode() else max_x
 
     def get_min_x(self) -> int:
         if self.mode == COMMAND_MODE:
@@ -120,7 +116,7 @@ class HelperChrome:
         border_x = max_x - self.width
         start_y = self.sidebar_y + 1
         start_x = border_x + 2
-        header_line = "Description for " + line_obj.path + " :"
+        header_line = f"Description for {line_obj.path} :"
         line_prefix = "    * "
         desc_lines = [
             line_obj.get_time_last_accessed(),
@@ -255,7 +251,7 @@ class ScrollBar:
     def output_border(self) -> None:
         x_pos = self.get_x() + 4
         max_y, _max_x = self.screen_control.get_screen_dimensions()
-        for y_pos in range(0, max_y):
+        for y_pos in range(max_y):
             self.printer.addstr(y_pos, x_pos, " ")
 
     def output_box(self) -> None:
@@ -387,10 +383,7 @@ class Controller:
         self.reset_dirty()
         self.move_cursor()
         while True:
-            if len(execute_keys) > 0:
-                in_key = execute_keys.pop(0)
-            else:
-                in_key = self.get_key()
+            in_key = execute_keys.pop(0) if len(execute_keys) > 0 else self.get_key()
             self.check_resize()
             self.process_input(in_key)
             self.process_dirty()
@@ -462,21 +455,21 @@ class Controller:
         self.update_scroll_offset()
 
     def process_input(self, key: str) -> None:
-        if key in ["k", "UP"]:
+        if key in {"k", "UP"}:
             self.move_index(-1)
-        elif key in ["j", "DOWN"]:
+        elif key in {"j", "DOWN"}:
             self.move_index(1)
         elif key == "x":
             self.toggle_x_mode()
         elif key == "c":
             self.begin_enter_command()
-        elif key in [" ", "NPAGE"]:
+        elif key in {" ", "NPAGE"}:
             self.page_down()
-        elif key in ["b", "PPAGE"]:
+        elif key in {"b", "PPAGE"}:
             self.page_up()
-        elif key in ["g", "HOME"]:
+        elif key in {"g", "HOME"}:
             self.jump_to_index(0)
-        elif (key == "G" and not self.mode == X_MODE) or key == "END":
+        elif key == "G" and self.mode != X_MODE or key == "END":
             self.jump_to_index(self.num_matches - 1)
         elif key == "d":
             self.describe_file()
@@ -485,7 +478,7 @@ class Controller:
         elif key == "F":
             self.toggle_select()
             self.move_index(1)
-        elif key == "A" and not self.mode == X_MODE:
+        elif key == "A" and self.mode != X_MODE:
             self.toggle_select_all()
         elif key == "ENTER" and (
             not self.flags.get_all_input() or self.flags.get_preset_command()
@@ -518,11 +511,7 @@ class Controller:
         return to_use
 
     def get_selected_paths(self) -> List[LineMatch]:
-        return [
-            line_obj
-            for index, line_obj in enumerate(self.line_matches)
-            if line_obj.get_selected()
-        ]
+        return [line_obj for line_obj in self.line_matches if line_obj.get_selected()]
 
     def get_hovered_paths(self) -> List[LineMatch]:
         return [
@@ -568,9 +557,7 @@ class Controller:
 
         for index, path in enumerate(paths):
             try:
-                self.color_printer.addstr(
-                    start_height + index, 0, path[0:max_path_length]
-                )
+                self.color_printer.addstr(start_height + index, 0, path[:max_path_length])
             except curses.error:
                 pass
 
